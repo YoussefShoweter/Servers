@@ -24,10 +24,173 @@ namespace Server
         static int minplayers =2 ;
         static int Numofusers;
         static MongoClient DBConnection = new MongoClient("mongodb+srv://19p3041:admin123@cluster0.lzbu4ip.mongodb.net/");
-
+        static int instanceNo;
         static bool GameOver = false;
 
 
+        //Main
+        static void Main(string[] args)
+        {
+            instanceNo = GetGame();
+            Console.WriteLine(instanceNo);
+            IncrementGameCount();
+            bool startGame = false;
+            Console.WriteLine("Your Ip is : " + GetIP());
+            Console.WriteLine("The server listens on Port :" + Port);
+            int inputPort = Port;
+            /*try
+            {
+                Port = int.Parse(inputPort);
+
+            }
+            catch (Exception ex) {
+                Port = 5423;
+            }*/
+
+            ip = IPAddress.Parse(GetIP());
+            Socket sock = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            sock.Bind(new IPEndPoint(ip, Port));
+            Console.WriteLine("Waiting for Connections");
+
+
+
+            try
+            {
+                while (true)
+                {
+                    bool reconnect = false;
+
+
+                    // Set the timeout to 10 seconds
+                    int timeout = 5000;
+
+                    // Server starts listening
+                    sock.Listen(0);
+                    Socket Sck;
+                    // Wait for incoming connections with a timeout
+                    while (true)
+                    {
+                        if (sock.Poll(timeout, SelectMode.SelectRead))
+                        {
+                            // Accept the incoming connection
+                            Sck = sock.Accept();
+
+                            // Process the incoming connection
+                            // ...
+                            break; // break out of the inner loop once a connection has been accepted
+                        }
+                        else
+                        {
+                            Sck = null;
+                            // Timeout occurred, handle it accordingly
+                            break; // break out of the inner loop and wait for another incoming connection
+                        }
+                    }
+
+
+                    if (Sck != null)
+                    { //Adding user to connected users
+                        Byte[] buffer = new Byte[255];
+                        int recievedName = Sck.Receive(buffer, 0, buffer.Length, 0);
+                        Array.Resize(ref buffer, recievedName);
+                        string Name = Encoding.Default.GetString(buffer);
+
+                        //Checking for re connections
+                        if (ConnectedUsers.Contains(Name))
+                        {
+
+                            int index = ConnectedUsers.IndexOf(Name);
+                            ActiveUsers.Insert(index, Name);
+                            sockets.Insert(index, Sck);
+                            reconnect = true;
+
+                            Console.WriteLine("The connected users to the server are:\n");
+                            for (int i = 0; i < ActiveUsers.Count; i++)
+                            {
+                                Console.WriteLine(ActiveUsers[i] + '\n');
+                            }
+                            Numofusers = sockets.Count();
+                            GetGameCount(Sck);
+                            sendmyoldPos(index, Name);
+
+
+                            //Get Name from Database
+
+
+
+                        }
+                        else
+                        {
+
+                            sockets.Add(Sck);
+                            ConnectedUsers.Add(Name);
+                            ActiveUsers.Add(Name);
+                            OldPosition.Add("");
+                            Console.WriteLine("Connected to : " + Name + "\n");
+                            Console.WriteLine("The connected users to the server are:\n");
+                            for (int i = 0; i < ConnectedUsers.Count; i++)
+                            {
+                                Console.WriteLine(ConnectedUsers[i] + '\n');
+
+                            }
+                            Numofusers = sockets.Count();
+
+                            GetGameCount(Sck);
+                            sendstartPos(Numofusers, Sck);
+
+                        }
+
+                        //checkifCanPlay(startGame,reconnect);
+
+
+
+                        Thread rec = new Thread(() => recv(Sck, Name));
+                        rec.Start();
+                        Thread sen = new Thread(() => send(startGame, reconnect));
+                        sen.Start();
+
+
+
+                        if (Numofusers >= minplayers)
+                        {
+
+                            startGame = true;
+
+                        }
+                    }
+                    else if (GameOver == false) { continue; }
+                    else
+                    {
+                        Console.WriteLine("Quit from main");
+                        throw new IOException();
+                    }
+                }
+            }
+            catch (IOException e)
+            {
+                Console.WriteLine("Game Over");
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("an exeption occured");
+            }
+
+
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+        //Helper Functions
         static string GetIP()
         {
             string strHostName = System.Net.Dns.GetHostName();
@@ -35,7 +198,6 @@ namespace Server
             IPAddress[] iPAddresses = ipentry.AddressList;
             return iPAddresses[iPAddresses.Length - 1].ToString();
         }
-
         static void send(bool startGame, bool recconect)
         {
             Thread.Sleep(1000);
@@ -202,151 +364,54 @@ namespace Server
 
         }
 
-        static void Main(string[] args)
+        public static void GetGameCount(Socket Sck)
         {
-            bool startGame = false;
-            Console.WriteLine("Your Ip is : " + GetIP());
-            Console.WriteLine("The server listens on Port :" + Port);
-            int inputPort = Port;
-            /*try
-            {
-                Port = int.Parse(inputPort);
-
-            }
-            catch (Exception ex) {
-                Port = 5423;
-            }*/
-
-            ip = IPAddress.Parse(GetIP());
-            Socket sock = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            sock.Bind(new IPEndPoint(ip, Port));
-            Console.WriteLine("Waiting for Connections");
-            
-
-
-            try
-            {
-                while (true)
-                {
-                    bool reconnect = false;
-                  
-
-                    // Set the timeout to 10 seconds
-                    int timeout = 5000;
-
-                    // Server starts listening
-                    sock.Listen(0);
-                    Socket Sck;
-                    // Wait for incoming connections with a timeout
-                    while (true)
-                    {
-                        if (sock.Poll(timeout, SelectMode.SelectRead))
-                        {
-                            // Accept the incoming connection
-                             Sck = sock.Accept();
-
-                            // Process the incoming connection
-                            // ...
-                            break; // break out of the inner loop once a connection has been accepted
-                        }
-                        else
-                        {
-                            Sck = null;
-                            // Timeout occurred, handle it accordingly
-                            break; // break out of the inner loop and wait for another incoming connection
-                        }
-                    }
-
-                   
-                    if (Sck != null)
-                    { //Adding user to connected users
-                        Byte[] buffer = new Byte[255];
-                        int recievedName = Sck.Receive(buffer, 0, buffer.Length, 0);
-                        Array.Resize(ref buffer, recievedName);
-                        string Name = Encoding.Default.GetString(buffer);
-
-                        //Checking for re connections
-                        if (ConnectedUsers.Contains(Name))
-                        {
-
-                            int index = ConnectedUsers.IndexOf(Name);
-                            ActiveUsers.Insert(index, Name);
-                            sockets.Insert(index, Sck);
-                            reconnect = true;
-
-                            Console.WriteLine("The connected users to the server are:\n");
-                            for (int i = 0; i < ActiveUsers.Count; i++)
-                            {
-                                Console.WriteLine(ActiveUsers[i] + '\n');
-                            }
-                            Numofusers = sockets.Count();
-                            sendmyoldPos( index,Name);
-
-
-                            //Get Name from Database
-
-
-
-                        }
-                        else
-                        {
-
-                            sockets.Add(Sck);
-                            ConnectedUsers.Add(Name);
-                            ActiveUsers.Add(Name);
-                            OldPosition.Add("");
-                            Console.WriteLine("Connected to : " + Name + "\n");
-                            Console.WriteLine("The connected users to the server are:\n");
-                            for (int i = 0; i < ConnectedUsers.Count; i++)
-                            {
-                                Console.WriteLine(ConnectedUsers[i] + '\n');
-
-                            }
-                            Numofusers = sockets.Count();
-
-                            sendstartPos(Numofusers, Sck);
-
-                        }
-
-                        //checkifCanPlay(startGame,reconnect);
-
-
-
-                        Thread rec = new Thread(() => recv(Sck, Name));
-                        rec.Start();
-                        Thread sen = new Thread(() => send(startGame, reconnect));
-                        sen.Start();
-
-
-
-                        if (Numofusers >= minplayers)
-                        {
-
-                            startGame = true;
-
-                        }
-                    }
-                    else if (GameOver == false) { continue; }
-                    else 
-                    {
-                        Console.WriteLine("Quit from main");
-                        throw new IOException();
-                    }
-                }
-            }
-            catch (IOException e)
-            {
-                Console.WriteLine("Game Over");
-
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("an exeption occured");
-            }
-        
-            
+            Byte[] Number = BitConverter.GetBytes(instanceNo);
+            Sck.Send(Number, 0, Number.Length, 0);
         }
 
+        public static void IncrementGameCount()
+        {
+            // create a MongoDB client and database
+            IMongoDatabase database = DBConnection.GetDatabase("GameDB");
+            IMongoCollection<BsonDocument> collection = database.GetCollection<BsonDocument>("Game#");
+
+            var filter = Builders<BsonDocument>.Filter.Empty;
+            var document = collection.Find(filter).FirstOrDefault();
+
+            if (document == null)
+            {
+                // insert new document with game count of 1
+                var newDocument = new BsonDocument("Game#", 1);
+                collection.InsertOne(newDocument);
+            }
+            else
+            {
+                // increment game count and update document
+                int currentCount = document["Game#"].AsInt32;
+                var update = Builders<BsonDocument>.Update.Set("Game#", currentCount + 1);
+                collection.UpdateOne(filter, update);
+            }
+        }
+
+        public static  int GetGame()
+        {
+            // create a MongoDB client and database
+            IMongoDatabase database = DBConnection.GetDatabase("GameDB");
+            IMongoCollection<BsonDocument> collection = database.GetCollection<BsonDocument>("Game#");
+            var filter = Builders<BsonDocument>.Filter.Empty;
+            var documents = collection.Find(filter).FirstOrDefault();
+
+            if (documents == null)
+            {
+                return 0;
+            }
+            else
+            {
+                int x = documents["Game#"].AsInt32;
+                return x;
+            }
+        }
         public static void checkifCanPlay(bool startGame, bool recconect)
         {
             for (int i = 0; i < sockets.Count; i++)
@@ -394,9 +459,6 @@ namespace Server
             }
 
         }
-
-    
-
 
         public static void SaveCoordinatesForRecording(float x, float y, float z, string UserName,int Game)
 {
