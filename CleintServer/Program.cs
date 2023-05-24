@@ -224,7 +224,7 @@ namespace Server
         }
         static void recv(Socket sock,string name)
         {
-            Thread.Sleep(800);
+            Thread.Sleep(1000);
             bool Connected = true;
             int index = 0;
             string lastMEssageBeforeDisc="";
