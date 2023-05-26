@@ -12,12 +12,12 @@ class Server
 {
     static void Main(string[] args)
     {
-
+        IPAddress ip = IPAddress.Parse("192.168.1.37");
         // create a TCP/IP socket
         Socket listener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-
+        Console.WriteLine("Server ip is 192.168.1.37");
         // bind the socket to a local endpoint and start listening
-        listener.Bind(new IPEndPoint(IPAddress.Any, 8888));
+        listener.Bind(new IPEndPoint(ip, 8888));
         listener.Listen(10);
 
         Console.WriteLine("Server started. Listening for incoming connections...");
@@ -33,6 +33,14 @@ class Server
             clientHandler.Start();
         }
     }
+    //Helper Functions
+        static string GetIP()
+        {
+            string strHostName = System.Net.Dns.GetHostName();
+            IPHostEntry ipentry = System.Net.Dns.GetHostEntry(strHostName);
+            IPAddress[] iPAddresses = ipentry.AddressList;
+            return iPAddresses[iPAddresses.Length - 1].ToString();
+        }
 }
 
 class ClientHandler
@@ -141,88 +149,95 @@ class ClientHandler
         {
             while (true)
             {
+                try { 
                 // receive data from the client
-                byte[] buffer = new byte[1024];
-                int bytesRead = _socket.Receive(buffer);
-                string message = Encoding.ASCII.GetString(buffer, 0, bytesRead);
+                    byte[] buffer = new byte[1024];
+                    int bytesRead = _socket.Receive(buffer);
+                   if (bytesRead< 0)  throw new InvalidOperationException();
+                    string message = Encoding.ASCII.GetString(buffer, 0, bytesRead);
 
-                Console.WriteLine("Received message from {0}: {1}", _socket.RemoteEndPoint.ToString(), message);
+                    Console.WriteLine("Received message from {0}: {1}", _socket.RemoteEndPoint.ToString(), message);
 
-                // parse the message and handleit according to the protocol
-                string[] parts = message.Split(':');
+                    // parse the message and handleit according to the protocol
+                    string[] parts = message.Split(':');
 
-                if (parts.Length < 2)
-                {
-                     // broadcast a message to all clients that a client has disconnected
-                            if (message.ToLower() == "logout")
-                            {
-                                _clients.Remove(client);
-                                string disconnectMessage = $"{clientId} has left the chat.";
-                                foreach (var c in _clients)
+                    if (parts.Length < 2)
+                    {
+                         
+                         // invalid message format
+                        byte[] response = Encoding.ASCII.GetBytes("invalid message format");
+                        _socket.Send(response);
+                        continue;
+                    }
+                    else
+                    {
+                        string Sender = parts[0];
+                        string recipient = parts[1];
+                        string content = parts[2];
+
+                        switch (recipient)
+                        {
+                            case "bc":
+                                // broadcast the message to all connected clients except the sender
+                                foreach (var client in _clients)
                                 {
-                                    if (c.Socket != _socket)
+                                    if (client.Socket != _socket) // don't send the message back to the sender
                                     {
-                                        byte[] buffer2 = Encoding.ASCII.GetBytes(disconnectMessage);
-                                        c.Socket.Send(buffer2);
+                                        byte[] buffer1 = Encoding.ASCII.GetBytes(Sender + ":bc:" + content);
+                                        Console.WriteLine(buffer1);
+                                    
+                                        client.Socket.Send(buffer1);
                                     }
                                 }
                                 break;
-                            }
-                    else { // invalid message format
-                    byte[] response = Encoding.ASCII.GetBytes("invalid message format");
-                    _socket.Send(response);
-                    continue;}
-                }
-                else
-                {
-                    string Sender = parts[0];
-                    string recipient = parts[1];
-                    string content = parts[2];
 
-                    switch (recipient)
-                    {
-                        case "bc":
-                            // broadcast the message to all connected clients except the sender
-                            foreach (var client in _clients)
-                            {
-                                if (client.Socket != _socket) // don't send the message back to the sender
+                            // add more cases for other commands or message types as needed
+
+                            default:
+                                // send the message to the specified recipient
+                                ClientInfo recipientClient = _clients.Find(c => c.ID == recipient);
+                                if (recipientClient == null)
                                 {
-                                    byte[] buffer1 = Encoding.ASCII.GetBytes(Sender + ":bc:" + content);
-                                    Console.WriteLine(buffer1);
-                                    
-                                    client.Socket.Send(buffer1);
+                                    // recipient not found
+                                    byte[] response1 = Encoding.ASCII.GetBytes("Recipient not found");
+                                    _socket.Send(response1);
                                 }
-                            }
-                            break;
-
-                        // add more cases for other commands or message types as needed
-
-                        default:
-                            // send the message to the specified recipient
-                            ClientInfo recipientClient = _clients.Find(c => c.ID == recipient);
-                            if (recipientClient == null)
-                            {
-                                // recipient not found
-                                byte[] response1 = Encoding.ASCII.GetBytes("Recipient not found");
-                                _socket.Send(response1);
-                            }
-                            else
-                            {
-                                byte[] buffer2 = Encoding.ASCII.GetBytes(Sender + ":" + recipient + ":" + content);
-                                recipientClient.Socket.Send(buffer2);
-                            }
-                            break;
-                            // send a response back to the client
-                            byte[] response = Encoding.ASCII.GetBytes("Message received");
-                            _socket.Send(response);
+                                else
+                                {
+                                    byte[] buffer2 = Encoding.ASCII.GetBytes(Sender + ":" + recipient + ":" + content);
+                                    recipientClient.Socket.Send(buffer2);
+                                }
+                                break;
+                                // send a response back to the client
+                                byte[] response = Encoding.ASCII.GetBytes("Message received");
+                                _socket.Send(response);
 
                            
-                    }
+                        }
 
+                    }
+                }
+                catch (Exception e)
+                {
+                    _clients.Remove(client);
+                                    string disconnectMessage = $"{clientId} has left the chat.";
+                                    foreach (var c in _clients)
+                                    {
+                                        if (c.Socket != _socket)
+                                        {
+                                            byte[] buffer2 = Encoding.ASCII.GetBytes(disconnectMessage);
+                                            c.Socket.Send(buffer2);
+                                        }
+                                    }
+                                    break;
                 }
             }
         }).Start();
     }
+   
+    
+    
+    
     private bool IsValidCredentials(string username, string password, bool isSignUp)
     {
         // create a MongoDB client and database
