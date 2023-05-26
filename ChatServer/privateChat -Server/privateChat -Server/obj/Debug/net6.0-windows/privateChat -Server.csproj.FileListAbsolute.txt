@@ -1,0 +1,30 @@
+C:\Users\mnagu\Desktop\ain shams\semester 8\CSE_354 Distributed Computing\new project\privateChat -Server\privateChat -Server\obj\Debug\net6.0-windows\privateChat -Server.csproj.AssemblyReference.cache
+C:\Users\mnagu\Desktop\ain shams\semester 8\CSE_354 Distributed Computing\new project\privateChat -Server\privateChat -Server\obj\Debug\net6.0-windows\privateChat -Server.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\mnagu\Desktop\ain shams\semester 8\CSE_354 Distributed Computing\new project\privateChat -Server\privateChat -Server\obj\Debug\net6.0-windows\privateChat -Server.AssemblyInfoInputs.cache
+C:\Users\mnagu\Desktop\ain shams\semester 8\CSE_354 Distributed Computing\new project\privateChat -Server\privateChat -Server\obj\Debug\net6.0-windows\privateChat -Server.AssemblyInfo.cs
+C:\Users\mnagu\Desktop\ain shams\semester 8\CSE_354 Distributed Computing\new project\privateChat -Server\privateChat -Server\obj\Debug\net6.0-windows\privateChat -Server.csproj.CoreCompileInputs.cache
+C:\Users\mnagu\Desktop\ain shams\semester 8\CSE_354 Distributed Computing\new project\privateChat -Server\privateChat -Server\bin\Debug\net6.0-windows\privateChat -Server.deps.json
+C:\Users\mnagu\Desktop\ain shams\semester 8\CSE_354 Distributed Computing\new project\privateChat -Server\privateChat -Server\bin\Debug\net6.0-windows\privateChat -Server.dll
+C:\Users\mnagu\Desktop\ain shams\semester 8\CSE_354 Distributed Computing\new project\privateChat -Server\privateChat -Server\bin\Debug\net6.0-windows\privateChat -Server.pdb
+C:\Users\mnagu\Desktop\ain shams\semester 8\CSE_354 Distributed Computing\new project\privateChat -Server\privateChat -Server\obj\Debug\net6.0-windows\privateChat -Server.dll
+C:\Users\mnagu\Desktop\ain shams\semester 8\CSE_354 Distributed Computing\new project\privateChat -Server\privateChat -Server\obj\Debug\net6.0-windows\refint\privateChat -Server.dll
+C:\Users\mnagu\Desktop\ain shams\semester 8\CSE_354 Distributed Computing\new project\privateChat -Server\privateChat -Server\obj\Debug\net6.0-windows\privateChat -Server.pdb
+C:\Users\mnagu\Desktop\ain shams\semester 8\CSE_354 Distributed Computing\new project\privateChat -Server\privateChat -Server\obj\Debug\net6.0-windows\ref\privateChat -Server.dll
+C:\Users\mnagu\Desktop\ain shams\semester 8\CSE_354 Distributed Computing\new project\privateChat -Server\privateChat -Server\bin\Debug\net6.0-windows\privateChat -Server.exe
+C:\Users\mnagu\Desktop\ain shams\semester 8\CSE_354 Distributed Computing\new project\privateChat -Server\privateChat -Server\bin\Debug\net6.0-windows\privateChat -Server.runtimeconfig.json
+C:\Users\mnagu\Desktop\ain shams\semester 8\CSE_354 Distributed Computing\new project\privateChat -Server\privateChat -Server\obj\Debug\net6.0-windows\privateChat -Server.genruntimeconfig.cache
+C:\Users\mnagu\Desktop\ain shams\semester 8\CSE_354 Distributed Computing\new project\privateChat -Server\privateChat -Server\bin\Debug\net6.0-windows\AWSSDK.Core.dll
+C:\Users\mnagu\Desktop\ain shams\semester 8\CSE_354 Distributed Computing\new project\privateChat -Server\privateChat -Server\bin\Debug\net6.0-windows\AWSSDK.SecurityToken.dll
+C:\Users\mnagu\Desktop\ain shams\semester 8\CSE_354 Distributed Computing\new project\privateChat -Server\privateChat -Server\bin\Debug\net6.0-windows\DnsClient.dll
+C:\Users\mnagu\Desktop\ain shams\semester 8\CSE_354 Distributed Computing\new project\privateChat -Server\privateChat -Server\bin\Debug\net6.0-windows\Microsoft.Extensions.Logging.Abstractions.dll
+C:\Users\mnagu\Desktop\ain shams\semester 8\CSE_354 Distributed Computing\new project\privateChat -Server\privateChat -Server\bin\Debug\net6.0-windows\MongoDB.Bson.dll
+C:\Users\mnagu\Desktop\ain shams\semester 8\CSE_354 Distributed Computing\new project\privateChat -Server\privateChat -Server\bin\Debug\net6.0-windows\MongoDB.Driver.dll
+C:\Users\mnagu\Desktop\ain shams\semester 8\CSE_354 Distributed Computing\new project\privateChat -Server\privateChat -Server\bin\Debug\net6.0-windows\MongoDB.Driver.Core.dll
+C:\Users\mnagu\Desktop\ain shams\semester 8\CSE_354 Distributed Computing\new project\privateChat -Server\privateChat -Server\bin\Debug\net6.0-windows\MongoDB.Libmongocrypt.dll
+C:\Users\mnagu\Desktop\ain shams\semester 8\CSE_354 Distributed Computing\new project\privateChat -Server\privateChat -Server\bin\Debug\net6.0-windows\SharpCompress.dll
+C:\Users\mnagu\Desktop\ain shams\semester 8\CSE_354 Distributed Computing\new project\privateChat -Server\privateChat -Server\bin\Debug\net6.0-windows\Snappier.dll
+C:\Users\mnagu\Desktop\ain shams\semester 8\CSE_354 Distributed Computing\new project\privateChat -Server\privateChat -Server\bin\Debug\net6.0-windows\ZstdSharp.dll
+C:\Users\mnagu\Desktop\ain shams\semester 8\CSE_354 Distributed Computing\new project\privateChat -Server\privateChat -Server\bin\Debug\net6.0-windows\runtimes\linux\native\libmongocrypt.so
+C:\Users\mnagu\Desktop\ain shams\semester 8\CSE_354 Distributed Computing\new project\privateChat -Server\privateChat -Server\bin\Debug\net6.0-windows\runtimes\osx\native\libmongocrypt.dylib
+C:\Users\mnagu\Desktop\ain shams\semester 8\CSE_354 Distributed Computing\new project\privateChat -Server\privateChat -Server\bin\Debug\net6.0-windows\runtimes\win\native\mongocrypt.dll
+C:\Users\mnagu\Desktop\ain shams\semester 8\CSE_354 Distributed Computing\new project\privateChat -Server\privateChat -Server\obj\Debug\net6.0-windows\privateChat -Server.csproj.CopyComplete

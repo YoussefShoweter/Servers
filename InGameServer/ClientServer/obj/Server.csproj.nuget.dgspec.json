@@ -1,0 +1,73 @@
+{
+  "format": 1,
+  "restore": {
+    "C:\\Users\\mnagu\\Desktop\\ain shams\\semester 8\\CSE_354 Distributed Computing\\Distributed_Project_latest version\\Servers\\InGameServer\\ClientServer\\Server.csproj": {}
+  },
+  "projects": {
+    "C:\\Users\\mnagu\\Desktop\\ain shams\\semester 8\\CSE_354 Distributed Computing\\Distributed_Project_latest version\\Servers\\InGameServer\\ClientServer\\Server.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\Users\\mnagu\\Desktop\\ain shams\\semester 8\\CSE_354 Distributed Computing\\Distributed_Project_latest version\\Servers\\InGameServer\\ClientServer\\Server.csproj",
+        "projectName": "Server",
+        "projectPath": "C:\\Users\\mnagu\\Desktop\\ain shams\\semester 8\\CSE_354 Distributed Computing\\Distributed_Project_latest version\\Servers\\InGameServer\\ClientServer\\Server.csproj",
+        "packagesPath": "C:\\Users\\mnagu\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\mnagu\\Desktop\\ain shams\\semester 8\\CSE_354 Distributed Computing\\Distributed_Project_latest version\\Servers\\InGameServer\\ClientServer\\obj\\",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "C:\\Users\\mnagu\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net6.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net6.0": {
+            "targetAlias": "net6.0",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net6.0": {
+          "targetAlias": "net6.0",
+          "dependencies": {
+            "MongoDB.Bson": {
+              "target": "Package",
+              "version": "[2.19.1, )"
+            },
+            "MongoDB.Driver": {
+              "target": "Package",
+              "version": "[2.19.1, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.402\\RuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}
