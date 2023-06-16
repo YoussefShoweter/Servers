@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -424,11 +424,7 @@ namespace Server
         {
             for (int i = 0; i < sockets.Count; i++)
             {
-<<<<<<< HEAD:CleintServer/Program.cs
                 if (startGame)
-=======
-                if (startGame )
->>>>>>> baa748d4299fe89353c5eafc4a504c3129b879b1:InGameServer/ClientServer/Program.cs
                 {
                     Byte[] confirmation = Encoding.Default.GetBytes("Now you can play");
                     sockets[i].Send(confirmation, 0, confirmation.Length, 0);
