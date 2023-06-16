@@ -1,0 +1,26 @@
+{
+  "version": 2,
+  "dgSpecHash": "LMmy5Vdn+yMKACy7aTNwdP0dmu3mM/1po9jORAKuv4uKizLQo1IEmEPL3FHNKoug4+QWwabaceAzE5aHbdTPww==",
+  "success": true,
+  "projectFilePath": "C:\\Users\\mnagu\\Desktop\\ain shams\\semester 8\\CSE_354 Distributed Computing\\Distributed_Project_latest version\\Servers\\InGameServer\\ClientServer\\Server.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\mnagu\\.nuget\\packages\\awssdk.core\\3.7.100.14\\awssdk.core.3.7.100.14.nupkg.sha512",
+    "C:\\Users\\mnagu\\.nuget\\packages\\awssdk.securitytoken\\3.7.100.14\\awssdk.securitytoken.3.7.100.14.nupkg.sha512",
+    "C:\\Users\\mnagu\\.nuget\\packages\\dnsclient\\1.6.1\\dnsclient.1.6.1.nupkg.sha512",
+    "C:\\Users\\mnagu\\.nuget\\packages\\microsoft.extensions.logging.abstractions\\2.0.0\\microsoft.extensions.logging.abstractions.2.0.0.nupkg.sha512",
+    "C:\\Users\\mnagu\\.nuget\\packages\\microsoft.netcore.platforms\\5.0.0\\microsoft.netcore.platforms.5.0.0.nupkg.sha512",
+    "C:\\Users\\mnagu\\.nuget\\packages\\microsoft.win32.registry\\5.0.0\\microsoft.win32.registry.5.0.0.nupkg.sha512",
+    "C:\\Users\\mnagu\\.nuget\\packages\\mongodb.bson\\2.19.1\\mongodb.bson.2.19.1.nupkg.sha512",
+    "C:\\Users\\mnagu\\.nuget\\packages\\mongodb.driver\\2.19.1\\mongodb.driver.2.19.1.nupkg.sha512",
+    "C:\\Users\\mnagu\\.nuget\\packages\\mongodb.driver.core\\2.19.1\\mongodb.driver.core.2.19.1.nupkg.sha512",
+    "C:\\Users\\mnagu\\.nuget\\packages\\mongodb.libmongocrypt\\1.7.0\\mongodb.libmongocrypt.1.7.0.nupkg.sha512",
+    "C:\\Users\\mnagu\\.nuget\\packages\\sharpcompress\\0.30.1\\sharpcompress.0.30.1.nupkg.sha512",
+    "C:\\Users\\mnagu\\.nuget\\packages\\snappier\\1.0.0\\snappier.1.0.0.nupkg.sha512",
+    "C:\\Users\\mnagu\\.nuget\\packages\\system.buffers\\4.5.1\\system.buffers.4.5.1.nupkg.sha512",
+    "C:\\Users\\mnagu\\.nuget\\packages\\system.runtime.compilerservices.unsafe\\5.0.0\\system.runtime.compilerservices.unsafe.5.0.0.nupkg.sha512",
+    "C:\\Users\\mnagu\\.nuget\\packages\\system.security.accesscontrol\\5.0.0\\system.security.accesscontrol.5.0.0.nupkg.sha512",
+    "C:\\Users\\mnagu\\.nuget\\packages\\system.security.principal.windows\\5.0.0\\system.security.principal.windows.5.0.0.nupkg.sha512",
+    "C:\\Users\\mnagu\\.nuget\\packages\\zstdsharp.port\\0.6.2\\zstdsharp.port.0.6.2.nupkg.sha512"
+  ],
+  "logs": []
+}
