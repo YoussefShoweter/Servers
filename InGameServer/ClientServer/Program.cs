@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -21,7 +21,7 @@ namespace Server
         static List<string> ConnectedUsers = new List<string>();
         static List<string> ActiveUsers = new List<string>();
         static List<string> OldPosition = new List<string>();
-        static int minplayers =2 ;
+        static int minplayers = 2;
         static int Numofusers;
         static MongoClient DBConnection = new MongoClient("mongodb+srv://19p3041:admin123@cluster0.lzbu4ip.mongodb.net/");
         static int instanceNo;
@@ -204,7 +204,7 @@ namespace Server
 
             for (int i = 0; i < sockets.Count; i++)
             {
-                if (startGame &&recconect!=true)
+                if (startGame)
                 {
                     Byte[] confirmation = Encoding.Default.GetBytes("Now you can play");
                     sockets[i].Send(confirmation, 0, confirmation.Length, 0);
@@ -213,7 +213,7 @@ namespace Server
 
             while (true)
             {
-                byte[] data = Encoding.Default.GetBytes(" "+Name + " : " +Console.ReadLine());
+                byte[] data = Encoding.Default.GetBytes(" " + Name + " : " + Console.ReadLine());
 
                 for (int i = 0; i < sockets.Count; i++)
                 {
@@ -222,12 +222,12 @@ namespace Server
             }
 
         }
-        static void recv(Socket sock,string name)
+        static void recv(Socket sock, string name)
         {
             Thread.Sleep(1000);
             bool Connected = true;
             int index = 0;
-            string lastMEssageBeforeDisc="";
+            string lastMEssageBeforeDisc = "";
 
             for (int i = 0; i < sockets.Count; i++)
             {
@@ -259,14 +259,14 @@ namespace Server
                         }
                     }
                     OldPosition[index] = Encoding.Default.GetString(buffer);
-                    
+
                     lastMEssageBeforeDisc = Encoding.Default.GetString(buffer);
-                    
+
 
 
                     Console.WriteLine("\n " + Encoding.Default.GetString(buffer));
                 }
-            
+
                 // A disconnection occured
                 catch
                 {
@@ -287,7 +287,7 @@ namespace Server
                             ActiveUsers.RemoveAt(index);
                             Numofusers = sockets.Count;
                         }
-                        
+
 
                     }
                     catch (Exception ex)
@@ -295,8 +295,15 @@ namespace Server
                         Console.WriteLine(ex.ToString());
                     }
 
+                    for (int i = 0; i < sockets.Count; i++)
+                    {
 
-                    Console.WriteLine( ( name + " has disconnected\n" + "this is the old position for "+ name + OldPosition[index]));
+                        Byte[] stop = Encoding.Default.GetBytes("STOP");
+                        sockets[i].Send(stop, 0, stop.Length, 0);
+
+                    }
+
+                    Console.WriteLine((name + " has disconnected\n" + "this is the old position for " + name + OldPosition[index]));
                     // Viewing the current Connected clients
                     Console.WriteLine("The connected users to the server are:\n");
 
@@ -308,32 +315,33 @@ namespace Server
                     }
                     try
                     {       //adding to Db
-                        if (lastMEssageBeforeDisc!="") {
-                        string[] parts1 = lastMEssageBeforeDisc.Split(',');
-                        float x1 = float.Parse(parts1[0]);
-                        float y1 = float.Parse(parts1[1]);
-                        float z1 = float.Parse(parts1[2]);
-                        Console.WriteLine(x1+ "" + y1 + "" + z1 + "" + name);
-                        SaveCoordinates(x1, y1, z1, name);
- }
-                        
-                        
+                        if (lastMEssageBeforeDisc != "")
+                        {
+                            string[] parts1 = lastMEssageBeforeDisc.Split(',');
+                            float x1 = float.Parse(parts1[0]);
+                            float y1 = float.Parse(parts1[1]);
+                            float z1 = float.Parse(parts1[2]);
+                            Console.WriteLine(x1 + "" + y1 + "" + z1 + "" + name);
+                            SaveCoordinates(x1, y1, z1, name);
+                        }
+
+
                     }
-                    catch(Exception ex)
+                    catch (Exception ex)
                     {
                         Console.WriteLine("Db input error");
                     }
-                    
-                   
 
-                    Connected =false;
-                  
+
+
+                    Connected = false;
+
                 }
             }
         }
         static void sendstartPos(int playernum, Socket socket)
         {
-            if(playernum == 1)
+            if (playernum == 1)
             {
                 Byte[] coor = Encoding.Default.GetBytes("-2,1,0");
                 socket.Send(coor, 0, coor.Length, 0);
@@ -351,11 +359,11 @@ namespace Server
         }
 
         //send my old position to me when i reconnect
-        static void sendmyoldPos( int index,string playername)
+        static void sendmyoldPos(int index, string playername)
         {
             (float x, float y, float z) coordintes = GetCoordinates(playername);
-            Console.WriteLine("\n********************\n"+coordintes+"\n" + "^^^^^^^^^^^^^^^^^^^^^^");
-            Byte[] confirmation = Encoding.Default.GetBytes(coordintes.x+","+ coordintes.y + "," + coordintes.z);
+            Console.WriteLine("\n********************\n" + coordintes + "\n" + "^^^^^^^^^^^^^^^^^^^^^^");
+            Byte[] confirmation = Encoding.Default.GetBytes(coordintes.x + "," + coordintes.y + "," + coordintes.z);
 
 
 
@@ -394,7 +402,7 @@ namespace Server
             }
         }
 
-        public static  int GetGame()
+        public static int GetGame()
         {
             // create a MongoDB client and database
             IMongoDatabase database = DBConnection.GetDatabase("GameDB");
@@ -416,7 +424,7 @@ namespace Server
         {
             for (int i = 0; i < sockets.Count; i++)
             {
-                if (startGame )
+                if (startGame)
                 {
                     Byte[] confirmation = Encoding.Default.GetBytes("Now you can play");
                     sockets[i].Send(confirmation, 0, confirmation.Length, 0);
@@ -424,10 +432,10 @@ namespace Server
             }
         }
         public static void SaveCoordinates(float x, float y, float z, string UserName)
-{
-            
-        // Create a new document
-        var document = new BsonDocument
+        {
+
+            // Create a new document
+            var document = new BsonDocument
             {
             { "x", new BsonDouble(x) },
             { "y", new BsonDouble(y) },
@@ -435,12 +443,12 @@ namespace Server
             { "UserName", UserName }
         };
 
-    // Get the collection
-   
-    IMongoDatabase database = DBConnection.GetDatabase("GameDB");
-    IMongoCollection<BsonDocument> collection = database.GetCollection<BsonDocument>("coordinates");
+            // Get the collection
 
-    // Define the filter for the document to replace
+            IMongoDatabase database = DBConnection.GetDatabase("GameDB");
+            IMongoCollection<BsonDocument> collection = database.GetCollection<BsonDocument>("coordinates");
+
+            // Define the filter for the document to replace
             var filter = Builders<BsonDocument>.Filter.Eq("UserName", UserName);
 
             var existingDocument = collection.Find(filter).FirstOrDefault();
@@ -460,45 +468,45 @@ namespace Server
 
         }
 
-        public static void SaveCoordinatesForRecording(float x, float y, float z, string UserName,int Game)
-{
-    // Create a new document
-    var document = new BsonDocument
+        public static void SaveCoordinatesForRecording(float x, float y, float z, string UserName, int Game)
+        {
+            // Create a new document
+            var document = new BsonDocument
     {
          { "x", new BsonDouble(x) },
         { "y", new BsonDouble(y) },
         { "z",new BsonDouble(z) },
         { "UserName", UserName },
          { "Game", new BsonInt32 (Game) }
-        
+
     };
 
-    // Get the collection
-    IMongoDatabase database = DBConnection.GetDatabase("GameDB");
-    IMongoCollection<BsonDocument> collection = database.GetCollection<BsonDocument>("replay");
+            // Get the collection
+            IMongoDatabase database = DBConnection.GetDatabase("GameDB");
+            IMongoCollection<BsonDocument> collection = database.GetCollection<BsonDocument>("replay");
 
 
-}
+        }
 
 
         public static (float x, float y, float z) GetCoordinates(string username)
-{
-        // Get the collection
-        IMongoDatabase database = DBConnection.GetDatabase("GameDB");
-        IMongoCollection<BsonDocument> collection = database.GetCollection<BsonDocument>("coordinates");
+        {
+            // Get the collection
+            IMongoDatabase database = DBConnection.GetDatabase("GameDB");
+            IMongoCollection<BsonDocument> collection = database.GetCollection<BsonDocument>("coordinates");
 
-        // Define the filter for the document to retrieve
+            // Define the filter for the document to retrieve
             var filter = Builders<BsonDocument>.Filter.Eq("UserName", username);
-                // Retrieve the document that matches the filter
-                try
-            {         
+            // Retrieve the document that matches the filter
+            try
+            {
 
                 var existingDocument = collection.Find(filter).FirstOrDefault();
-                    // If no document matches the filter, return null
-                    if (existingDocument == null)
-                    {
-                        return (float.NaN, float.NaN, float.NaN);
-                    }
+                // If no document matches the filter, return null
+                if (existingDocument == null)
+                {
+                    return (float.NaN, float.NaN, float.NaN);
+                }
 
                 // Get the values of the x, y, and z fields from the document as floats
                 float x = Convert.ToSingle(existingDocument["x"].AsDouble);
@@ -507,16 +515,16 @@ namespace Server
 
                 // Return the coordinates as a tuple
                 return (x, y, z);
-                }
+            }
 
-                catch (Exception ex)
-                {
-                    Console.WriteLine("Errrrrrrrrrror   "+ex.Message);
-                    return (float.NaN, float.NaN, float.NaN);
-
-                }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Errrrrrrrrrror   " + ex.Message);
+                return (float.NaN, float.NaN, float.NaN);
 
             }
+
+        }
 
 
 
