@@ -30,17 +30,8 @@ class Server
             Console.WriteLine("Client connected: {0}", handler.RemoteEndPoint.ToString());
             // start a new thread to handle the client
             ClientHandler clientHandler = new ClientHandler(handler, ref _clients);
-            clientHandler.Start();
         }
     }
-    //Helper Functions
-        static string GetIP()
-        {
-            string strHostName = System.Net.Dns.GetHostName();
-            IPHostEntry ipentry = System.Net.Dns.GetHostEntry(strHostName);
-            IPAddress[] iPAddresses = ipentry.AddressList;
-            return iPAddresses[iPAddresses.Length - 1].ToString();
-        }
 }
 
 class ClientHandler
@@ -52,242 +43,220 @@ class ClientHandler
     {
         _socket = socket;
         _clients = clients;
-    }
-
-    public void Start()
-    {
-        // authenticate the client
-        bool isAuthenticated = false;
-        string clientId = "";
-        while (!isAuthenticated)
-        {
-            // receive request from the client
-            byte[] buffer = new byte[1024];
-            int bytesRead = _socket.Receive(buffer);
-            string message = Encoding.ASCII.GetString(buffer, 0, bytesRead);
-
-            Console.WriteLine("Received request from {0}: {1}", _socket.RemoteEndPoint.ToString(), message);
-
-            // parse the request and handle it according to the protocol
-            string[] parts = message.Split(':');
-
-            if (parts.Length < 3)
-            {
-                // invalid request format
-                byte[] response = Encoding.ASCII.GetBytes("invalid request format");
-                _socket.Send(response);
-                continue;
-            }
-
-            string requestType = parts[0];
-            string username = parts[1];
-            string password = parts[2];
-
-            switch (requestType)
-            {
-                case "login":
-                    if (IsValidCredentials(username, password, false))
-                    {
-                        isAuthenticated = true;
-                        clientId = username;
-                        byte[] responseBuffer = Encoding.ASCII.GetBytes("login_ok");
-                        _socket.Send(responseBuffer);
-                    }
-                    else
-                    {
-                        byte[] responseBuffer = Encoding.ASCII.GetBytes("invalid username or password");
-                        _socket.Send(responseBuffer);
-                    }
-                    break;
-
-                case "signup":
-                    bool isSignUpSuccessful = IsValidCredentials(username, password, true);
-
-                    if (isSignUpSuccessful)
-                    {
-                        byte[] responseBuffer = Encoding.ASCII.GetBytes("signup_ok");
-                        _socket.Send(responseBuffer);
-                    }
-                    else
-                    {
-                        byte[] responseBuffer = Encoding.ASCII.GetBytes("username already exists");
-                        _socket.Send(responseBuffer);
-                        continue;
-                    }
-                    break;
-
-                default:
-                    // unknown request type
-                    byte[] unknownResponse = Encoding.ASCII.GetBytes("unknown request type");
-                    _socket.Send(unknownResponse);
-                    continue;
-            }
-        }
-
-        // add the client to the collection of clients
-        ClientInfo client = new ClientInfo();
-        client.ID = clientId;
-        client.Socket = _socket;
-        _clients.Add(client);
-
-        Console.WriteLine("Client {0} authenticated. Assigned ID {1}", _socket.RemoteEndPoint.ToString(), clientId);
-
-        // broadcast a message to all clients that a new client has connected
-        string connectMessage = $"{clientId} has joined the chat.";
-
-        foreach (var c in _clients)
-        {
-            if (c.Socket != _socket)
-            {
-                byte[] buffer = Encoding.ASCII.GetBytes(connectMessage);
-                c.Socket.Send(buffer);
-            }
-        }
 
         // start a new thread to handle the client
         new System.Threading.Thread(() =>
         {
+            // authenticate the client
+            bool isAuthenticated = false;
+            string clientId = "";
+            while (!isAuthenticated)
+            {
+                // receive request from the client
+                byte[] buffer = new byte[1024];
+                int bytesRead = _socket.Receive(buffer);
+                string message = Encoding.ASCII.GetString(buffer, 0, bytesRead);
+
+                Console.WriteLine("Received request from {0}: {1}", _socket.RemoteEndPoint.ToString(), message);
+
+                // parse the request and handle it according to the protocol
+                string[] parts = message.Split(':');
+
+                if (parts.Length < 3)
+                {
+                    // invalid request format
+                    byte[] response = Encoding.ASCII.GetBytes("invalid request format");
+                    _socket.Send(response);
+                    continue;
+                }
+
+                string requestType = parts[0];
+                string username = parts[1];
+                string password = parts[2];
+
+                switch (requestType)
+                {
+                    case "login":
+                        if (IsValidCredentials(username, password, false))
+                        {
+                            isAuthenticated = true;
+                            clientId = username;
+                            byte[] responseBuffer = Encoding.ASCII.GetBytes("login_ok");
+                            _socket.Send(responseBuffer);
+                        }
+                        else
+                        {
+                            byte[] responseBuffer = Encoding.ASCII.GetBytes("invalid username or password");
+                            _socket.Send(responseBuffer);
+                        }
+                        break;
+
+                    case "signup":
+                        bool isSignUpSuccessful = IsValidCredentials(username, password, true);
+
+                        if (isSignUpSuccessful)
+                        {
+                            byte[] responseBuffer = Encoding.ASCII.GetBytes("signup_ok");
+                            _socket.Send(responseBuffer);
+                        }
+                        else
+                        {
+                            byte[] responseBuffer = Encoding.ASCII.GetBytes("username already exists");
+                            _socket.Send(responseBuffer);
+                            continue;
+                        }
+                        break;
+
+                    default:
+                        // unknown request type
+                        byte[] unknownResponse = Encoding.ASCII.GetBytes("unknown request type");
+                        _socket.Send(unknownResponse);
+                        continue;
+                }
+            }
+
+            // add the client to the collection of clients
+            ClientInfo client = new ClientInfo();
+            client.ID = clientId;
+            client.Socket = _socket;
+            _clients.Add(client);
+
+            Console.WriteLine("Client {0} authenticated. Assigned ID {1}", _socket.RemoteEndPoint.ToString(), clientId);
+
+            // broadcast a message to all clients that a new client has connected
+            string connectMessage = $"{clientId} has joined the chat.";
+
+            foreach (var c in _clients)
+            {
+                if (c.Socket != _socket)
+                {
+                    byte[] buffer = Encoding.ASCII.GetBytes(connectMessage);
+                    c.Socket.Send(buffer);
+                }
+            }
+
             while (true)
             {
-                try { 
-                // receive data from the client
+                try
+                {
+                    // receive data from the client
                     byte[] buffer = new byte[1024];
                     int bytesRead = _socket.Receive(buffer);
-                   if (bytesRead< 0)  throw new InvalidOperationException();
+                    if (bytesRead < 0) throw new InvalidOperationException();
                     string message = Encoding.ASCII.GetString(buffer, 0, bytesRead);
 
                     Console.WriteLine("Received message from {0}: {1}", _socket.RemoteEndPoint.ToString(), message);
 
-                    // parse the message and handleit according to the protocol
+                    // parse the message and handle it according to the protocol
                     string[] parts = message.Split(':');
 
                     if (parts.Length < 2)
                     {
-                         
-                         // invalid message format
+                        // invalid message format
                         byte[] response = Encoding.ASCII.GetBytes("invalid message format");
                         _socket.Send(response);
                         continue;
                     }
                     else
                     {
-                        string Sender = parts[0];
+                        string sender = parts[0];
                         string recipient = parts[1];
                         string content = parts[2];
 
-                        switch (recipient)
+                        if (recipient == "bc")
                         {
-                            case "bc":
-                                // broadcast the message to all connected clients except the sender
-                                foreach (var client in _clients)
+                            // broadcast the message to all clients
+                            string broadcastMessage = $"{sender}:{content}";
+                            foreach (var c in _clients)
+                            {
+                                if (c.Socket != _socket)
                                 {
-                                    if (client.Socket != _socket) // don't send the message back to the sender
-                                    {
-                                        byte[] buffer1 = Encoding.ASCII.GetBytes(Sender + ":bc:" + content);
-                                        Console.WriteLine(buffer1);
-                                    
-                                        client.Socket.Send(buffer1);
-                                    }
+                                    byte[] bufferToSend = Encoding.ASCII.GetBytes(broadcastMessage);
+                                    c.Socket.Send(bufferToSend);
                                 }
-                                break;
-
-                            // add more cases for other commands or message types as needed
-
-                            default:
-                                // send the message to the specified recipient
-                                ClientInfo recipientClient = _clients.Find(c => c.ID == recipient);
-                                if (recipientClient == null)
-                                {
-                                    // recipient not found
-                                    byte[] response1 = Encoding.ASCII.GetBytes("Recipient not found");
-                                    _socket.Send(response1);
-                                }
-                                else
-                                {
-                                    byte[] buffer2 = Encoding.ASCII.GetBytes(Sender + ":" + recipient + ":" + content);
-                                    recipientClient.Socket.Send(buffer2);
-                                }
-                                break;
-                                // send a response back to the client
-                                byte[] response = Encoding.ASCII.GetBytes("Message received");
-                                _socket.Send(response);
-
-                           
+                            }
                         }
-
+                        else
+                        {
+                            // send the message to the specified client
+                            ClientInfo recipientClient = _clients.Find(c => c.ID == recipient);
+                            if (recipientClient != null)
+                            {
+                                string directMessage = $"{sender}:{content}";
+                                byte[] bufferToSend = Encoding.ASCII.GetBytes(directMessage);
+                                recipientClient.Socket.Send(bufferToSend);
+                            }
+                            else
+                            {
+                                // recipient not found
+                                byte[] response = Encoding.ASCII.GetBytes("recipient not found");
+                                _socket.Send(response);
+                                continue;
+                            }
+                        }
                     }
                 }
                 catch (Exception e)
                 {
-                    _clients.Remove(client);
-                                    string disconnectMessage = $"{clientId} has left the chat.";
-                                    foreach (var c in _clients)
-                                    {
-                                        if (c.Socket != _socket)
-                                        {
-                                            byte[] buffer2 = Encoding.ASCII.GetBytes(disconnectMessage);
-                                            c.Socket.Send(buffer2);
-                                        }
-                                    }
-                                    break;
+                    // handle the exception
+                    Console.WriteLine("Client {0} disconnected.", clientId);
+                    _clients.RemoveAll(c => c.ID == clientId);
+
+                    // broadcast a message to all clients that the client has disconnected
+                    string disconnectMessage = $"{clientId} has left the chat.";
+                    foreach (var c in _clients)
+                    {
+                        byte[] buffer = Encoding.ASCII.GetBytes(disconnectMessage);
+                        c.Socket.Send(buffer);
+                    }
+
+                    break;
                 }
             }
         }).Start();
     }
-   
-    
-    
-    
-    private bool IsValidCredentials(string username, string password, bool isSignUp)
+
+    static bool IsValidCredentials(string username, string password, bool isSignUp)
     {
-        // create a MongoDB client and database
-        MongoClient client = new MongoClient("mongodb+srv://19p3041:admin123@cluster0.lzbu4ip.mongodb.net/");
-        IMongoDatabase database = client.GetDatabase("GameDB");
+        MongoClient dbClient = new MongoClient("mongodb://localhost:27017");
+        IMongoDatabase db = dbClient.GetDatabase("testdb");
+        IMongoCollection<BsonDocument> collection = db.GetCollection<BsonDocument>("users");
 
-        // get the users collection
-        IMongoCollection<BsonDocument> collection = database.GetCollection<BsonDocument>("Player");
+        BsonDocument document = collection.Find(new BsonDocument("username", username)).FirstOrDefault();
 
-        // define a filter to find the user with the specified username
-        var filter = Builders<BsonDocument>.Filter.Eq("UserName", username);
-
-        // find the user in the database
-        var result = collection.Find(filter).FirstOrDefault();
-
-        if (result == null && isSignUp)
+        if (isSignUp)
         {
-            // user doesn't exist and signup is requested
-            var newUser = new BsonDocument
-        {
-            { "UserName", username },
-            { "Password", password }
-        };
-
-            collection.InsertOne(newUser);
-
-            // return true to indicate successful signup
-            return true;
-        }
-        else if (result != null && !isSignUp)
-        {
-            // user exists and login is requested
-            var userPassword =result.GetValue("Password").ToString();
-            return (userPassword == password);
+            if (document == null)
+            {
+                document = new BsonDocument
+                {
+                    { "username", username },
+                    { "password", password }
+                };
+                collection.InsertOne(document);
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
         else
         {
-            // user doesn't exist and login is requested, or user exists and signup is requested
-            return false;
+            if (document != null && document["password"] == password)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
     }
-
-
 }
 
 class ClientInfo
 {
-    //username of this client
     public string ID { get; set; }
     public Socket Socket { get; set; }
 }
-
-

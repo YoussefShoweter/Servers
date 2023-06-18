@@ -757,11 +757,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\mnagu\\Desktop\\ain shams\\semester 8\\CSE_354 Distributed Computing\\new project\\privateChat -Server\\privateChat -Server\\privateChat -Server.csproj",
+      "projectUniqueName": "C:\\Users\\mnagu\\Desktop\\ain shams\\semester 8\\CSE_354 Distributed Computing\\Distributed_Project_latest version\\Servers\\ChatServer\\privateChat -Server\\privateChat -Server\\privateChat -Server.csproj",
       "projectName": "privateChat -Server",
-      "projectPath": "C:\\Users\\mnagu\\Desktop\\ain shams\\semester 8\\CSE_354 Distributed Computing\\new project\\privateChat -Server\\privateChat -Server\\privateChat -Server.csproj",
+      "projectPath": "C:\\Users\\mnagu\\Desktop\\ain shams\\semester 8\\CSE_354 Distributed Computing\\Distributed_Project_latest version\\Servers\\ChatServer\\privateChat -Server\\privateChat -Server\\privateChat -Server.csproj",
       "packagesPath": "C:\\Users\\mnagu\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\mnagu\\Desktop\\ain shams\\semester 8\\CSE_354 Distributed Computing\\new project\\privateChat -Server\\privateChat -Server\\obj\\",
+      "outputPath": "C:\\Users\\mnagu\\Desktop\\ain shams\\semester 8\\CSE_354 Distributed Computing\\Distributed_Project_latest version\\Servers\\ChatServer\\privateChat -Server\\privateChat -Server\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\mnagu\\AppData\\Roaming\\NuGet\\NuGet.Config",

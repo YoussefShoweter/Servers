@@ -1,7 +1,12 @@
 {
   "ExpandedNodes": [
-    ""
+    "",
+    "\\ChatServer",
+    "\\ChatServer\\privateChat -Server",
+    "\\ChatServer\\privateChat -Server\\privateChat -Server",
+    "\\InGameServer",
+    "\\InGameServer\\ClientServer"
   ],
-  "SelectedNode": "\\InGameServer",
+  "SelectedNode": "\\ChatServer\\privateChat -Server\\privateChat -Server\\Server.cs",
   "PreviewInSolutionExplorer": false
 }

@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "j1tUi92/DrXP0oIJxRDk1Z1gJEbWbLadjhl4x/lbV7vBVOZzNiPYV3nfLd+Sj5g7Ds+26ldjx3j0+RUedduV0Q==",
+  "dgSpecHash": "8csAWXxL4BqSBGGQhSGvsqc24S/8Slql5XWpjSfIo5hymR13pr9RACr8ZFTOu0w2o7vj1nVtn3nAiZ5zELC3WA==",
   "success": true,
-  "projectFilePath": "C:\\Users\\mnagu\\Desktop\\ain shams\\semester 8\\CSE_354 Distributed Computing\\new project\\privateChat -Server\\privateChat -Server\\privateChat -Server.csproj",
+  "projectFilePath": "C:\\Users\\mnagu\\Desktop\\ain shams\\semester 8\\CSE_354 Distributed Computing\\Distributed_Project_latest version\\Servers\\ChatServer\\privateChat -Server\\privateChat -Server\\privateChat -Server.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\mnagu\\.nuget\\packages\\awssdk.core\\3.7.100.14\\awssdk.core.3.7.100.14.nupkg.sha512",
     "C:\\Users\\mnagu\\.nuget\\packages\\awssdk.securitytoken\\3.7.100.14\\awssdk.securitytoken.3.7.100.14.nupkg.sha512",
