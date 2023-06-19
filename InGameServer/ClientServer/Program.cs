@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -13,7 +14,6 @@ namespace Server
 {
     class Program
     {
-        static byte[] Buffer { get; set; }
         static int Port = 5423;
         static IPAddress ip;
         static string Name = "Server";
@@ -23,30 +23,29 @@ namespace Server
         static List<string> OldPosition = new List<string>();
         static int minplayers = 2;
         static int Numofusers;
-        static MongoClient DBConnection = new MongoClient("mongodb+srv://19p3041:admin123@cluster0.lzbu4ip.mongodb.net/");
+        const string CONNECTION_STRING_1 = "mongodb+srv://19p3041:admin123@cluster0.lzbu4ip.mongodb.net/";
+        const string CONNECTION_STRING_2 = "mongodb+srv://19p3041:admin123@cluster0.ttvx1yp.mongodb.net/";
+        static MongoClient DBConnection = new MongoClient(CONNECTION_STRING_1);
+        static MongoClient DBConnectionPrimary = new MongoClient(CONNECTION_STRING_1);
+        static MongoClient DBConnectionSecondary = new MongoClient(CONNECTION_STRING_2);
         static int instanceNo;
         static bool GameOver = false;
-
 
         //Main
         static void Main(string[] args)
         {
             instanceNo = GetGame();
             Console.WriteLine(instanceNo);
-            IncrementGameCount();
+            Thread updategame = new Thread(() => IncrementGameCount(DBConnectionPrimary));
+            updategame.Start();
+            Thread updategame2 = new Thread(() => IncrementGameCount(DBConnectionSecondary));
+            updategame2.Start();
+
             bool startGame = false;
             Console.WriteLine("Your Ip is : " + GetIP());
             Console.WriteLine("The server listens on Port :" + Port);
             int inputPort = Port;
-            /*try
-            {
-                Port = int.Parse(inputPort);
-
-            }
-            catch (Exception ex) {
-                Port = 5423;
-            }*/
-
+          
             ip = IPAddress.Parse(GetIP());
             Socket sock = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             sock.Bind(new IPEndPoint(ip, Port));
@@ -60,6 +59,7 @@ namespace Server
                 {
                     bool reconnect = false;
 
+                   
 
                     // Set the timeout to 10 seconds
                     int timeout = 5000;
@@ -74,6 +74,7 @@ namespace Server
                         {
                             // Accept the incoming connection
                             Sck = sock.Accept();
+
 
                             // Process the incoming connection
                             // ...
@@ -179,17 +180,6 @@ namespace Server
 
         }
 
-
-
-
-
-
-
-
-
-
-
-
         //Helper Functions
         static string GetIP()
         {
@@ -247,7 +237,7 @@ namespace Server
                     int rec = sock.Receive(buffer, 0, buffer.Length, 0);
                     if (rec <= 0)
                     {
-                        throw new SocketException();
+                        throw new Exception();
                     }
                     Array.Resize(ref buffer, rec);
 
@@ -261,24 +251,27 @@ namespace Server
                     OldPosition[index] = Encoding.Default.GetString(buffer);
 
                     lastMEssageBeforeDisc = Encoding.Default.GetString(buffer);
-
-
-
-                    Console.WriteLine("\n " + Encoding.Default.GetString(buffer));
+    
+                    //Console.WriteLine("\n " + Encoding.Default.GetString(buffer));
                 }
 
                 // A disconnection occured
-                catch
+                catch(Exception e) 
                 {
+                    Console.WriteLine(e.ToString());
                     try
                     {
                         if (sockets.Count() == 1)
                         {
-                            Numofusers = 0;
-                            Console.WriteLine("Game Over");
+                            Console.WriteLine("EveryOne Left ");
                             sockets.RemoveAt(0);
                             ActiveUsers.RemoveAt(0);
-                            GameOver = true;
+                            reset();
+                            Connected = false;
+                            continue;
+
+
+
                         }
 
                         else
@@ -292,7 +285,6 @@ namespace Server
                     }
                     catch (Exception ex)
                     {
-                        Console.WriteLine(ex.ToString());
                     }
 
                     for (int i = 0; i < sockets.Count; i++)
@@ -322,7 +314,12 @@ namespace Server
                             float y1 = float.Parse(parts1[1]);
                             float z1 = float.Parse(parts1[2]);
                             Console.WriteLine(x1 + "" + y1 + "" + z1 + "" + name);
-                            SaveCoordinates(x1, y1, z1, name);
+                            Thread savecoor = new Thread(() => SaveCoordinates(x1, y1, z1, name, DBConnection));
+                            savecoor.Start();
+                            Thread savecoor2 = new Thread(() => SaveCoordinates(x1, y1, z1, name, DBConnectionSecondary));
+                            savecoor2.Start();
+
+                            ;
                         }
 
 
@@ -378,34 +375,68 @@ namespace Server
             Sck.Send(Number, 0, Number.Length, 0);
         }
 
-        public static void IncrementGameCount()
+        public static void IncrementGameCount(MongoClient DBConnection)
         {
-            // create a MongoDB client and database
-            IMongoDatabase database = DBConnection.GetDatabase("GameDB");
-            IMongoCollection<BsonDocument> collection = database.GetCollection<BsonDocument>("Game#");
-
-            var filter = Builders<BsonDocument>.Filter.Empty;
-            var document = collection.Find(filter).FirstOrDefault();
-
-            if (document == null)
+            try
             {
-                // insert new document with game count of 1
-                var newDocument = new BsonDocument("Game#", 1);
-                collection.InsertOne(newDocument);
+                // create a MongoDB client and database
+                IMongoDatabase database = DBConnection.GetDatabase("GameDB");
+                IMongoCollection<BsonDocument> collection = database.GetCollection<BsonDocument>("Game#");
+
+                var filter = Builders<BsonDocument>.Filter.Empty;
+                var document = collection.Find(filter).FirstOrDefault();
+
+                if (document == null)
+                {
+                    // insert new document with game count of 1
+                    var newDocument = new BsonDocument("Game#", 1);
+                    collection.InsertOne(newDocument);
+                }
+                else
+                {
+                    // increment game count and update document
+                    int currentCount = document["Game#"].AsInt32;
+                    var update = Builders<BsonDocument>.Update.Set("Game#", currentCount + 1);
+                    collection.UpdateOne(filter, update);
+                }
             }
-            else
+            catch(Exception ex)
             {
-                // increment game count and update document
-                int currentCount = document["Game#"].AsInt32;
-                var update = Builders<BsonDocument>.Update.Set("Game#", currentCount + 1);
-                collection.UpdateOne(filter, update);
+                Console.WriteLine("Faliure of Current DB");
+
             }
+            
         }
 
         public static int GetGame()
         {
+            IMongoDatabase database;
             // create a MongoDB client and database
-            IMongoDatabase database = DBConnection.GetDatabase("GameDB");
+            try
+            {
+                database = DBConnection.GetDatabase("GameDB");
+            }
+            catch (Exception ex)
+            {
+                Thread recover = new Thread(() =>  Recover(DBConnection));
+                recover.Start();
+
+                if (DBConnection == DBConnectionPrimary) {
+                    DBConnection = DBConnectionSecondary;
+                database = DBConnection.GetDatabase("GameDB");
+                Console.WriteLine("The Second Database is primary ");
+
+            }
+                else
+                {
+
+                    DBConnection = DBConnectionPrimary;
+                    database = DBConnection.GetDatabase("GameDB");
+                    Console.WriteLine("The first Database is primary ");
+                }
+
+
+            }
             IMongoCollection<BsonDocument> collection = database.GetCollection<BsonDocument>("Game#");
             var filter = Builders<BsonDocument>.Filter.Empty;
             var documents = collection.Find(filter).FirstOrDefault();
@@ -420,18 +451,8 @@ namespace Server
                 return x;
             }
         }
-        public static void checkifCanPlay(bool startGame, bool recconect)
-        {
-            for (int i = 0; i < sockets.Count; i++)
-            {
-                if (startGame)
-                {
-                    Byte[] confirmation = Encoding.Default.GetBytes("Now you can play");
-                    sockets[i].Send(confirmation, 0, confirmation.Length, 0);
-                }
-            }
-        }
-        public static void SaveCoordinates(float x, float y, float z, string UserName)
+     
+        public static void SaveCoordinates(float x, float y, float z, string UserName, MongoClient DB)
         {
 
             // Create a new document
@@ -442,57 +463,72 @@ namespace Server
             { "z",new BsonDouble(z) },
             { "UserName", UserName }
         };
+            IMongoDatabase database;
 
             // Get the collection
+            try
+            {
+                 database = DB.GetDatabase("GameDB");
+                IMongoCollection<BsonDocument> collection = database.GetCollection<BsonDocument>("coordinates");
 
-            IMongoDatabase database = DBConnection.GetDatabase("GameDB");
-            IMongoCollection<BsonDocument> collection = database.GetCollection<BsonDocument>("coordinates");
+                // Define the filter for the document to replace
+                var filter = Builders<BsonDocument>.Filter.Eq("UserName", UserName);
 
-            // Define the filter for the document to replace
-            var filter = Builders<BsonDocument>.Filter.Eq("UserName", UserName);
+                var existingDocument = collection.Find(filter).FirstOrDefault();
+                if (existingDocument == null)
+                {
 
-            var existingDocument = collection.Find(filter).FirstOrDefault();
-            if (existingDocument == null)
+                    collection.InsertOne(document);
+                }
+                else
+                {
+
+                    // Replace the document if it already exists, or insert a new one if it doesn't
+
+                    collection.ReplaceOne(filter, document, new UpdateOptions { IsUpsert = true });
+
+                }
+            }
+            catch(Exception ex) 
             {
 
-                collection.InsertOne(document);
-            }
-            else
-            {
-
-                // Replace the document if it already exists, or insert a new one if it doesn't
-
-                collection.ReplaceOne(filter, document, new UpdateOptions { IsUpsert = true });
+                Console.WriteLine("Faliure of Current DB");
 
             }
 
-        }
-
-        public static void SaveCoordinatesForRecording(float x, float y, float z, string UserName, int Game)
-        {
-            // Create a new document
-            var document = new BsonDocument
-    {
-         { "x", new BsonDouble(x) },
-        { "y", new BsonDouble(y) },
-        { "z",new BsonDouble(z) },
-        { "UserName", UserName },
-         { "Game", new BsonInt32 (Game) }
-
-    };
-
-            // Get the collection
-            IMongoDatabase database = DBConnection.GetDatabase("GameDB");
-            IMongoCollection<BsonDocument> collection = database.GetCollection<BsonDocument>("replay");
 
 
         }
-
 
         public static (float x, float y, float z) GetCoordinates(string username)
         {
             // Get the collection
-            IMongoDatabase database = DBConnection.GetDatabase("GameDB");
+            IMongoDatabase database;
+            // create a MongoDB client and database
+            try
+            {
+                database = DBConnection.GetDatabase("GameDB");
+            }
+            catch (Exception ex)
+            {
+                Thread recover = new Thread(() => Recover(DBConnection));
+                recover.Start();
+
+                if (DBConnection == DBConnectionPrimary)
+                {
+                    DBConnection = DBConnectionSecondary;
+                    database = DBConnection.GetDatabase("GameDB");
+                    Console.WriteLine("The Second Database is primary ");
+                }
+                else
+                {
+                    DBConnection = DBConnectionPrimary;
+                    database = DBConnection.GetDatabase("GameDB");
+                    Console.WriteLine("The first Database is primary ");
+                }
+
+
+            }
             IMongoCollection<BsonDocument> collection = database.GetCollection<BsonDocument>("coordinates");
 
             // Define the filter for the document to retrieve
@@ -527,7 +563,74 @@ namespace Server
         }
 
 
+        public static void Recover(MongoClient DBC)
+        {
+            bool recovered=false;
+            while (!recovered)
+            {
+                try {
+
+                    IMongoDatabase database = DBC.GetDatabase("GameDB");
+
+                    string sourceConnectionString ;
+                    string targetConnectionString;
+                    if (DBC == DBConnectionPrimary)
+                    {
+                         sourceConnectionString = CONNECTION_STRING_2;
+                         targetConnectionString = CONNECTION_STRING_1;
+                    }
+                    else
+                    {
+                         sourceConnectionString = CONNECTION_STRING_1;
+                         targetConnectionString = CONNECTION_STRING_2;
+                    }
 
 
+
+                    
+                    string databaseName = "GameDB";
+
+                    // export data from the source cluster
+                    ProcessStartInfo startInfo = new ProcessStartInfo();
+                    startInfo.FileName = "mongodump";
+                    startInfo.Arguments = $"--uri {sourceConnectionString} --db {databaseName}";
+                    startInfo.RedirectStandardOutput = true;
+                    Process process = new Process();
+                    process.StartInfo = startInfo;
+                    process.Start();
+                    process.WaitForExit();
+
+                    // import data into the target cluster
+                    startInfo = new ProcessStartInfo();
+                    startInfo.FileName = "mongorestore";
+                    startInfo.Arguments = $"--uri {targetConnectionString} --drop";
+                    startInfo.RedirectStandardInput = true;
+                    process = new Process();
+                    process.StartInfo = startInfo;
+                    process.Start();
+                    string dumpOutput = process.StandardOutput.ReadToEnd();
+                    process.StandardInput.WriteLine(dumpOutput);
+                    process.StandardInput.Close();
+                    process.WaitForExit();
+
+                    recovered = true;
+                
+                }
+                catch (Exception ex) {
+                    Thread.Sleep(5000);
+                }
+            }
+        }
+
+
+        public static void reset()
+        {
+            sockets = new List<Socket>();
+            ConnectedUsers = new List<string>();
+            ActiveUsers = new List<string>();
+            OldPosition = new List<string>();
+            Numofusers = 0;
+            IncrementGameCount(DBConnection);
+        } 
     }
 }
